@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance { get { return _instance; } }
 
-
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -29,8 +28,14 @@ public class GameManager : MonoBehaviour
     public Vector3 respawnPosition;
     public GameObject player;
 
+    public GameObject displayApple;
+    public GameObject displayWater;
+    public GameObject displayHoney;
+    public GameObject displayThunder;
+
     // Private fields
     float playerStamina;
+    Dictionary<Pickup.PickupType, bool> pickups = new Dictionary<Pickup.PickupType, bool>();
 
     // Properties
     public float PlayerStamina
@@ -49,6 +54,11 @@ public class GameManager : MonoBehaviour
     {
         PlayerStamina = maxPlayerStamina;
         player.GetComponent<PlayerMovement>().SetOnPlayerMovementListener(OnPlayerMovement);
+
+        pickups[Pickup.PickupType.APPLE] = false;
+        pickups[Pickup.PickupType.WATER] = false;
+        pickups[Pickup.PickupType.HONEY] = false;
+        pickups[Pickup.PickupType.THUNDER] = false;
     }
 
     // Update is called once per frame
@@ -62,6 +72,12 @@ public class GameManager : MonoBehaviour
         RespawnPlayer();
     }
 
+    public void PickupItem(Pickup.PickupType pickup)
+    {
+        pickups[pickup] = true;
+        RespawnPlayer();
+    }
+
     void OnPlayerMovement(float dist)
     {
         PlayerStamina -= dist;
@@ -71,9 +87,28 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    GameObject GetPickupDisplay(Pickup.PickupType pickup)
+    {
+        if (pickup == Pickup.PickupType.APPLE) return displayApple;
+        if (pickup == Pickup.PickupType.WATER) return displayWater;
+        if (pickup == Pickup.PickupType.HONEY) return displayHoney;
+        if (pickup == Pickup.PickupType.THUNDER) return displayThunder;
+        return new GameObject();
+    }
+
     void RespawnPlayer()
     {
+        // Reset player position and stamina
         player.transform.position = respawnPosition;
         PlayerStamina = maxPlayerStamina;
+
+        // Display collected items
+        foreach (var item in pickups)
+        {
+            GetPickupDisplay(item.Key).SetActive(item.Value);
+        }
+        
+        // TODO: Clear existing enemies
+        // TODO: Respawn enemies
     }
 }

@@ -18,6 +18,6 @@ public class PickupManager : MonoBehaviour
 
     public void NewItem(Pickup.PickupType type)
     {
-        
+        GameManager.Instance.PickupItem(type);
     }
 }
