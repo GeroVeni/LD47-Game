@@ -8,6 +8,7 @@ public class PlayerRangedAttack : MonoBehaviour
     public float fireDelay;
     public float bulletSpeed;
     public Rigidbody2D bulletPrefab;
+    public Transform gunPoint;
 
     // Private fields
     bool canFire;
@@ -40,8 +41,11 @@ public class PlayerRangedAttack : MonoBehaviour
             if (canFire)
             {
                 canFire = false;
-                Rigidbody2D bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-                bullet.velocity = transform.right * bulletSpeed;
+                Rigidbody2D bullet = Instantiate(bulletPrefab, gunPoint.position, Quaternion.identity);
+                CharacterController2D cc2d = GetComponent<CharacterController2D>();
+                Vector2 shootingDirection = -transform.right;
+                if (cc2d.FacingRight) shootingDirection = transform.right;
+                bullet.velocity = shootingDirection * bulletSpeed;
                 Debug.Log("Fire " + bltN++.ToString());
             }
         }

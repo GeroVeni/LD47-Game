@@ -4,10 +4,28 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    private static GameManager _instance;
+
+    public static GameManager Instance { get { return _instance; } }
+
+
+    private void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
+
     // UI
-    public TMPro.TextMeshProUGUI staminaView;
+    public HealthBar staminaView;
 
     // Public fields
+    public float maxPlayerStamina;
     public Vector3 respawnPosition;
     public GameObject player;
 
@@ -22,14 +40,14 @@ public class GameManager : MonoBehaviour
         set
         {
             playerStamina = value;
-            staminaView.text = playerStamina.ToString();
+            staminaView.SetValue(playerStamina, maxPlayerStamina);
         }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        PlayerStamina = 0;
+        PlayerStamina = maxPlayerStamina;
         player.GetComponent<PlayerMovement>().SetOnPlayerMovementListener(OnPlayerMovement);
     }
 
@@ -39,10 +57,15 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public void PlayerFell()
+    {
+        RespawnPlayer();
+    }
+
     void OnPlayerMovement(float dist)
     {
-        PlayerStamina += dist;
-        if (PlayerStamina >= 100)
+        PlayerStamina -= dist;
+        if (PlayerStamina <= 0)
         {
             RespawnPlayer();
         }
@@ -51,6 +74,6 @@ public class GameManager : MonoBehaviour
     void RespawnPlayer()
     {
         player.transform.position = respawnPosition;
-        PlayerStamina = 0;
+        PlayerStamina = maxPlayerStamina;
     }
 }
