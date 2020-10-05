@@ -63,14 +63,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Abyss.cs" />
+    <Compile Include="Assets\AudioManager.cs" />
+    <Compile Include="Assets\BigFlaree.cs" />
+    <Compile Include="Assets\Bullet.cs" />
     <Compile Include="Assets\CharacterController2D.cs" />
     <Compile Include="Assets\Flaree.cs" />
     <Compile Include="Assets\GameManager.cs" />
     <Compile Include="Assets\HealthBar.cs" />
+    <Compile Include="Assets\MainMenu.cs" />
     <Compile Include="Assets\Pickup.cs" />
     <Compile Include="Assets\PickupManager.cs" />
     <Compile Include="Assets\PlayerMovement.cs" />
     <Compile Include="Assets\PlayerRangedAttack.cs" />
+    <Compile Include="Assets\Sound.cs" />
     <Compile Include="Assets\Tree.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro.cginc" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Mobile Overlay.shader" />

@@ -38,9 +38,10 @@ public class PlayerRangedAttack : MonoBehaviour
         // Fire projectiles
         if (Input.GetMouseButtonDown(0))
         {
-            if (canFire)
+            if (canFire && GameManager.Instance.CanShoot())
             {
                 canFire = false;
+                AudioManager.instance.Play("nut");
                 Rigidbody2D bullet = Instantiate(bulletPrefab, gunPoint.position, Quaternion.identity);
                 CharacterController2D cc2d = GetComponent<CharacterController2D>();
                 Vector2 shootingDirection = -transform.right;

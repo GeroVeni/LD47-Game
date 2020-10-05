@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -32,10 +34,15 @@ public class GameManager : MonoBehaviour
     public GameObject displayWater;
     public GameObject displayHoney;
     public GameObject displayThunder;
+    public GameObject flareePrefab;
+    public GameObject bigFlareePrefab;
+    public Transform flareeParent;
 
     // Private fields
     float playerStamina;
     Dictionary<Pickup.PickupType, bool> pickups = new Dictionary<Pickup.PickupType, bool>();
+    List<Vector3> flareePositions;
+    Vector3 bigFlareePosition;
 
     // Properties
     public float PlayerStamina
@@ -59,12 +66,26 @@ public class GameManager : MonoBehaviour
         pickups[Pickup.PickupType.WATER] = false;
         pickups[Pickup.PickupType.HONEY] = false;
         pickups[Pickup.PickupType.THUNDER] = false;
+
+        AudioManager.instance.Play("theme");
+
+        flareePositions = new List<Vector3>();
+        foreach (var flaree in FindObjectsOfType<Flaree>())
+        {
+            flareePositions.Add(flaree.transform.position);
+        }
+        bigFlareePosition = FindObjectOfType<BigFlaree>().transform.position;
+
+        RespawnPlayer(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            Application.Quit();
+        }
     }
 
     public void PlayerFell()
@@ -96,19 +117,46 @@ public class GameManager : MonoBehaviour
         return new GameObject();
     }
 
-    void RespawnPlayer()
+    public bool CanShoot()
     {
+        return pickups[Pickup.PickupType.APPLE];
+    }
+
+    bool IsWater()
+    {
+        return !pickups[Pickup.PickupType.WATER];
+    }
+
+    void RespawnPlayer(bool playSound = true)
+    {
+        if (playSound) AudioManager.instance.Play("death");
         // Reset player position and stamina
         player.transform.position = respawnPosition;
         PlayerStamina = maxPlayerStamina;
 
         // Display collected items
+        bool collectedAll = true;
         foreach (var item in pickups)
         {
+            if (!item.Value) collectedAll = false;
             GetPickupDisplay(item.Key).SetActive(item.Value);
         }
-        
+        if (collectedAll)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+
+        Array.ForEach(FindObjectsOfType<Tree>(), tree => tree.IsSick = !IsWater());
+
         // TODO: Clear existing enemies
+        Array.ForEach(FindObjectsOfType<Flaree>(), flaree => Destroy(flaree.gameObject));
+        Destroy(FindObjectOfType<BigFlaree>()?.gameObject);
         // TODO: Respawn enemies
+        flareePositions.ForEach(flareePos =>
+        {
+            var fl = Instantiate(flareePrefab, flareePos, Quaternion.identity, flareeParent);
+            fl.GetComponent<Flaree>().state = CanShoot() ? Flaree.FlareeState.HUNT : Flaree.FlareeState.PEACEFULL;
+        });
+        Instantiate(bigFlareePrefab, bigFlareePosition, Quaternion.identity, flareeParent);
     }
 }
